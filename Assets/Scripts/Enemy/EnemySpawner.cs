@@ -6,6 +6,8 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private Enemy _enemyPrefab;
     [SerializeField] private Transform _parents;
     [SerializeField] private Player _player;
+    [SerializeField, Min(1)] private float _timePause;
+    [SerializeField] private float _spawnRadius;
 
     private PoolObject<Enemy> _poolEnemy;
     private Coroutine _crSpawnEnemyTymer;
@@ -19,10 +21,14 @@ public class EnemySpawner : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSecondsRealtime(1);
+            yield return new WaitForSecondsRealtime(_timePause);
             Enemy enemy = _poolEnemy.GetObject();
+            enemy.SpawnEnemy(_player);
 
-            enemy.transform.localPosition = new Vector3(Random.Range(-1.5f, 1.5f), 0.2f, Random.Range(-1.5f, 1.5f));
+            float angle = Random.Range(0f, 360f) / 180f * Mathf.PI;
+            Vector3 newPos = new (Mathf.Sin(angle), 0, Mathf.Cos(angle));
+
+            enemy.transform.localPosition = newPos * _spawnRadius;
         }
 
     }

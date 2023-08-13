@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private InputJoystickTouche _inputJoystickTouche;
+    //[SerializeField] private InputJoystickTouche _inputJoystickTouche;
     [SerializeField] private PlayerComponentData _playerData;
 
     private StateMachine<PlayerState> _stateMachine;
@@ -12,6 +12,8 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         _startLocalPos = transform.localPosition;
+
+        _playerData.EntityHealth.OnDead += Dead;
 
         InitializeStateMachine();
     }
@@ -34,21 +36,21 @@ public class Player : MonoBehaviour
         _stateMachine.State.StopMove();
     }
 
-    private void SetDirectionMove(Vector2 direction)
+    private void Dead()
     {
-        _playerData.PlayerMove.SetDirection(direction);
+        Debug.Log("Player Dead");
     }
 
 
     private void InitializeStateMachine()
     {
-        List<PlayerState> playerStates = new List<PlayerState>()
+        List<PlayerState> states = new List<PlayerState>()
         {
             new PlayerIdelState(_playerData),
             new PlayerMoveState(_playerData)
         };
 
-        _stateMachine = new StateMachine<PlayerState>(playerStates.ToArray());
+        _stateMachine = new StateMachine<PlayerState>(states.ToArray());
 
         _stateMachine.ChangeState(typeof(PlayerIdelState));
     }
@@ -58,14 +60,14 @@ public class Player : MonoBehaviour
         transform.localPosition = _startLocalPos;
         transform.localEulerAngles = Vector3.zero;
 
-        _inputJoystickTouche.OnStartMove += StartMove;
-        _inputJoystickTouche.OnStopMove += StopMove;
-        _inputJoystickTouche.OnUpdateDirection += SetDirectionMove;
+        _playerData.JoystickTouche.OnStartMove += StartMove;
+        _playerData.JoystickTouche.OnStopMove += StopMove;
+        _playerData.JoystickTouche.OnUpdateDirection += _playerData.PlayerMove.SetMoveDirection;
     }
     public void OnTargetLost()
     {
-        _inputJoystickTouche.OnStartMove -= StartMove;
-        _inputJoystickTouche.OnStopMove -= StopMove;
-        _inputJoystickTouche.OnUpdateDirection -= SetDirectionMove;
+        _playerData.JoystickTouche.OnStartMove -= StartMove;
+        _playerData.JoystickTouche.OnStopMove -= StopMove;
+        _playerData.JoystickTouche.OnUpdateDirection -= _playerData.PlayerMove.SetMoveDirection;
     }
 }

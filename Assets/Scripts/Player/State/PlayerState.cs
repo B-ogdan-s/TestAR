@@ -1,11 +1,13 @@
-﻿public abstract class PlayerState : State
+﻿using UnityEngine;
+
+public abstract class PlayerState : State
 {
+    protected PlayerComponentData _componentData;
+
     public PlayerState(PlayerComponentData componentData)
     {
         _componentData = componentData;
     }
-
-    protected PlayerComponentData _componentData;
 
     public virtual void Update() { }
     public virtual void Fixedupdate() { }
